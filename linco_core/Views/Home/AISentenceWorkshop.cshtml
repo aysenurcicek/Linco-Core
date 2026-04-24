@@ -1,0 +1,147 @@
+@{
+    ViewData["Title"] = "AI Cümle Atölyesi";
+    ViewData["HideLogin"] = true;
+    ViewData["DisableLogoLink"] = true;
+}
+
+@section Scripts {
+    <style>
+        .level-btn {
+            background-color: var(--lingo-bar-bg);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 8px 25px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .level-btn:hover, .level-btn.active, .level-btn:focus {
+            background-color: #e63946; /* Matching red aesthetic */
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(230, 57, 70, 0.3);
+        }
+        .word-input {
+            border-radius: 50px !important;
+            padding: 15px 30px !important;
+            font-size: 1.25rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .word-input:focus {
+            border-color: var(--lingo-bar-bg);
+            box-shadow: 0 10px 30px rgba(0, 163, 224, 0.15);
+            outline: none;
+        }
+    </style>
+
+    <script>
+        let selectedLevel = '';
+
+        $(document).ready(function() {
+            $('.level-btn').click(function() {
+                $('.level-btn').removeClass('active');
+                $(this).addClass('active');
+                selectedLevel = $(this).text();
+            });
+
+            $('#btnGenerate').click(function() {
+                var word = $('.word-input').val();
+                if(!word || !selectedLevel) {
+                    alert("Lütfen bir kelime girin ve seviye seçin!");
+                    return;
+                }
+
+                var btn = $(this);
+                btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> ÜRETİLİYOR...');
+
+                $('.translator-result-box').html(
+                    '<i class="bi bi-robot fs-1 mb-3 d-block" style="color: var(--lingo-bar-bg);"></i>' +
+                    '<h4 class="fw-bold mb-3" style="color: var(--lingo-title-blue);">Atölye Çalışıyor...</h4>' +
+                    '<p class="mb-0 text-muted" style="font-size: 1.15rem;">Yapay zeka cümlenizi kuruyor...</p>'
+                );
+
+                $.ajax({
+                    url: '/Home/GenerateSentences',
+                    type: 'POST',
+                    data: { word: word, level: selectedLevel },
+                    success: function(res) {
+                        btn.prop('disabled', false).html('<i class="bi bi-lightning-charge-fill me-2"></i> CÜMLE ÜRET');
+                        if(res.success) {
+                            $('.translator-result-box').html(
+                                '<h4 class="fw-bold mb-4" style="color: var(--lingo-title-blue);">Atölye Sonucu</h4>' +
+                                '<ul class="list-unstyled mb-0">' + res.data + '</ul>'
+                            );
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function() {
+                        btn.prop('disabled', false).html('<i class="bi bi-lightning-charge-fill me-2"></i> CÜMLE ÜRET');
+                        alert("Bir hata oluştu.");
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<section class="lingo-section pt-5">
+    <div class="container">
+        <!-- Top Section: Hero Style (Unboxed) -->
+        <div class="row align-items-center justify-content-center mb-5 mt-4">
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 pe-lg-5" style="transition: all 0.3s ease; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='translateY(-5px) scale(1)'">
+                <h1 class="hero-title fw-bold" style="font-size: 2.5rem; margin-bottom: 1rem;">AI Cümle Atölyesi</h1>
+                <p class="hero-text mb-0" style="font-size: 1.25rem; color: var(--lingo-text-gray);">
+                    Kendi cümlelerinizi kurun, yapay zeka anında hatalarınızı düzeltsin ve size en doğal kullanım kalıplarını öğretsin.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center" style="transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='translateY(-8px) scale(1)'">
+                <img src="~/images/2.png" alt="AI Cümle Atölyesi" class="img-fluid" style="max-height: 220px; object-fit: cover; border-radius: 50%; box-shadow: 0 15px 35px rgba(0, 163, 224, 0.2);">
+            </div>
+        </div>
+
+        <!-- Single Word Input Area -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <input type="text" class="form-control word-input" placeholder="Cümle kurmak istediğiniz kelimeyi girin..." />
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Buttons -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn level-btn">A1</button>
+                <button class="btn level-btn">A2</button>
+                <button class="btn level-btn">B1</button>
+                <button class="btn level-btn">B2</button>
+                <button class="btn level-btn">C1</button>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-auto">
+                <button id="btnGenerate" class="btn rounded-pill shadow translator-btn">
+                    <i class="bi bi-lightning-charge-fill me-2"></i> CÜMLE ÜRET
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Box Area -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="translator-result-box text-center p-5">
+                    <i class="bi bi-robot fs-1 mb-3 d-block" style="color: var(--lingo-bar-bg);"></i>
+                    <h4 class="fw-bold mb-3" style="color: var(--lingo-title-blue);">Atölye Sonucu</h4>
+                    <p class="mb-0 text-muted" style="font-size: 1.15rem;">Kelimenizle oluşturulan cümleler burada görünecek...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

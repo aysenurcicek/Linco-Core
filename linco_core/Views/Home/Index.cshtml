@@ -1,0 +1,180 @@
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0 pe-lg-5">
+                <h1 class="hero-title fw-bold">Geleceğin Dilini Yapay Zekayla Keşfet!</h1>
+                <p class="hero-text">
+                    Lingo Core ile klasik dersleri unut. AI destekli atölyelerden global arenalara, kayıp sözlüklerden akıllı hedeflere kadar her adımda dilin sınırlarını zorla. İngilizceyi sadece öğrenme; akıllı rehberinle birlikte yaşa!
+                </p>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="~/images/baykuş.png" alt="Lingo Core Baykuş" class="hero-image img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section (6 Boxes) -->
+<section class="lingo-section">
+    <div class="container">
+        <!-- Row 1 -->
+        <div class="row feature-row g-4 d-flex align-items-stretch">
+            <!-- Box 1 -->
+            <div class="col-lg-6" id="evrensel-ceviri">
+                <a asp-controller="Home" asp-action="Translator" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-feature-card">
+                        <div class="row align-items-center w-100 m-0">
+                            <div class="col-sm-7 order-2 order-sm-1 text-center text-sm-start mt-4 mt-sm-0 pe-sm-4">
+                                <h3 class="lingo-card-title fw-bold">Evrensel Çeviri</h3>
+                                <p class="lingo-card-text mb-0">Sadece kelimeleri değil, anlamın ruhunu yakalayın. AI destekli çeviri motoru ile dil bariyerlerini kökten yıkın.</p>
+                            </div>
+                            <div class="col-sm-5 order-1 order-sm-2 p-0">
+                                <div class="lingo-card-img-wrapper">
+                                    <img src="~/images/1.png" alt="Evrensel Çeviri" class="lingo-card-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Box 2 -->
+            <div class="col-lg-6" id="ai-cumle-atolyesi">
+                <a asp-controller="Home" asp-action="AISentenceWorkshop" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-feature-card">
+                        <div class="row align-items-center w-100 m-0">
+                            <div class="col-sm-7 order-2 order-sm-1 text-center text-sm-start mt-4 mt-sm-0 pe-sm-4">
+                                <h3 class="lingo-card-title fw-bold">AI Cümle Atölyesi</h3>
+                                <p class="lingo-card-text mb-0">Kendi cümlelerinizi kurun, yapay zeka anında hatalarınızı düzeltsin ve size en doğal kullanım kalıplarını öğretsin.</p>
+                            </div>
+                            <div class="col-sm-5 order-1 order-sm-2 p-0">
+                                <div class="lingo-card-img-wrapper">
+                                    <img src="~/images/2.png" alt="AI Cümle Atölyesi" class="lingo-card-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="row feature-row g-4 d-flex align-items-stretch">
+            <!-- Box 3 -->
+            <div class="col-lg-6" id="kelime-haznem">
+                <a asp-controller="Home" asp-action="MyVocabulary" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-feature-card">
+                        <div class="row align-items-center w-100 m-0">
+                            <div class="col-sm-7 order-2 order-sm-1 text-center text-sm-start mt-4 mt-sm-0 pe-sm-4">
+                                <h3 class="lingo-card-title fw-bold">Kelime Haznem</h3>
+                                <p class="lingo-card-text mb-0">Öğrendiğiniz her kelimeyi dijital haznenize ekleyin, kişisel ve akıllı sözlüğünüzü adım adım inşa edin.</p>
+                            </div>
+                            <div class="col-sm-5 order-1 order-sm-2 p-0">
+                                <div class="lingo-card-img-wrapper">
+                                    <img src="~/images/3.png" alt="Kelime Haznem" class="lingo-card-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Box 4 -->
+            <div class="col-lg-6" id="hedef-listem">
+                <a asp-controller="Home" asp-action="MyGoalList" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-feature-card">
+                        <div class="row align-items-center w-100 m-0">
+                            <div class="col-sm-7 order-2 order-sm-1 text-center text-sm-start mt-4 mt-sm-0 pe-sm-4">
+                                <h3 class="lingo-card-title fw-bold">Hedef Listem</h3>
+                                <p class="lingo-card-text mb-0">Dil öğrenme yolculuğunuzda günlük hedeflerinizi belirleyin ve ilerlemenizi anlık grafiklerle takip edin.</p>
+                            </div>
+                            <div class="col-sm-5 order-1 order-sm-2 p-0">
+                                <div class="lingo-card-img-wrapper">
+                                    <img src="~/images/4.png" alt="Hedef Listem" class="lingo-card-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="row feature-row g-4 d-flex align-items-stretch">
+            <!-- Box 5 -->
+            <div class="col-lg-6" id="kayip-sozluk">
+                <a asp-controller="Home" asp-action="LostDictionary" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-feature-card">
+                        <div class="row align-items-center w-100 m-0">
+                            <div class="col-sm-7 order-2 order-sm-1 text-center text-sm-start mt-4 mt-sm-0 pe-sm-4">
+                                <h3 class="lingo-card-title fw-bold">Kayıp Sözlük</h3>
+                                <p class="lingo-card-text mb-0">Unutulmuş kelimelerin gizemli dünyasına adım atın; dildeki nadir ve keşfedilmeyi bekleyen mücevherleri bulun.</p>
+                            </div>
+                            <div class="col-sm-5 order-1 order-sm-2 p-0">
+                                <div class="lingo-card-img-wrapper">
+                                    <img src="~/images/5.png" alt="Kayıp Sözlük" class="lingo-card-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Box 6 -->
+            <div class="col-lg-6" id="bilgi-siniri">
+                <a asp-controller="Home" asp-action="BilgiSiniri" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-feature-card">
+                        <div class="row align-items-center w-100 m-0">
+                            <div class="col-sm-7 order-2 order-sm-1 text-center text-sm-start mt-4 mt-sm-0 pe-sm-4">
+                                <h3 class="lingo-card-title fw-bold">Bilgi Sınırı</h3>
+                                <p class="lingo-card-text mb-0">Seviyenize özel hazırlanan zorlayıcı testlerle kendinizi kanıtlayın ve dil becerilerinizin sınırlarını zorlayın.</p>
+                            </div>
+                            <div class="col-sm-5 order-1 order-sm-2 p-0">
+                                <div class="lingo-card-img-wrapper">
+                                    <img src="~/images/6.png" alt="Bilgi Sınırı" class="lingo-card-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Lingo Arena (7th Box Full Width) -->
+        <div class="row mt-5 pt-3" id="lingo-arena">
+            <div class="col-12">
+                <a asp-controller="Home" asp-action="LingoArena" class="text-decoration-none text-reset d-block h-100">
+                    <div class="lingo-arena-card text-center position-relative overflow-hidden">
+                        <div class="row align-items-center position-relative" style="z-index: 2;">
+                            <!-- Left Image -->
+                            <div class="col-md-3 d-none d-md-block">
+                                <img src="~/images/7.png" alt="Lingo Arena Left" class="img-fluid rounded-4 shadow-sm" style="transform: rotate(-3deg); transition: transform 0.3s ease;" onmouseover="this.style.transform='rotate(0deg) scale(1.03)'" onmouseout="this.style.transform='rotate(-3deg)'">
+                            </div>
+                            
+                            <!-- Center Text -->
+                            <div class="col-md-6 px-4">
+                                <h2 class="arena-title fw-bold" style="color: var(--lingo-title-blue);">Lingo Arena</h2>
+                                <p class="arena-text mb-4" style="color: var(--lingo-text-gray);">
+                                    Diğer dil savaşçılarıyla gerçek zamanlı rekabet edin, zamana karşı yarışarak liderlik koltuğuna oturun.
+                                </p>
+                                <button class="btn btn-lg px-5 rounded-pill shadow" style="background-color: var(--lingo-bar-bg); color: var(--lingo-text-white); font-weight: 600; font-size: 1.15rem; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                                    Savaşa Katıl <i class="bi bi-swords ms-2"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Right Image -->
+                            <div class="col-md-3 mt-4 mt-md-0 d-none d-md-block">
+                                <img src="~/images/8.png" alt="Lingo Arena Right" class="img-fluid rounded-4 shadow-sm" style="transform: rotate(3deg); transition: transform 0.3s ease;" onmouseover="this.style.transform='rotate(0deg) scale(1.03)'" onmouseout="this.style.transform='rotate(3deg)'">
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

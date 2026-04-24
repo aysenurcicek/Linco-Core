@@ -1,0 +1,95 @@
+@{
+    ViewData["Title"] = "Evrensel Çevirici";
+    ViewData["HideLogin"] = true;
+    ViewData["DisableLogoLink"] = true;
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#btnTranslate').click(function() {
+                var text = $('.translator-textarea').val();
+                if(!text) {
+                    alert("Lütfen çevrilecek metni girin.");
+                    return;
+                }
+
+                var btn = $(this);
+                btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i> ÇEVRİLİYOR...');
+                
+                $('.translator-result-box').html(
+                    '<i class="bi bi-hourglass-split fs-1 mb-3 d-block" style="color: var(--lingo-bar-bg);"></i>' +
+                    '<h4 class="fw-bold mb-3" style="color: var(--lingo-title-blue);">Çevriliyor...</h4>' +
+                    '<p class="mb-0 text-muted" style="font-size: 1.15rem;">Yapay zeka metni analiz ediyor...</p>'
+                );
+
+                $.ajax({
+                    url: '/Home/Translate',
+                    type: 'POST',
+                    data: { text: text },
+                    success: function(res) {
+                        btn.prop('disabled', false).html('<i class="bi bi-translate me-2"></i> ÇEVİR');
+                        if(res.success) {
+                            $('.translator-result-box').html(
+                                '<h4 class="fw-bold mb-3" style="color: var(--lingo-title-blue);">Çeviri Sonucu</h4>' +
+                                '<p class="mb-0 text-start" style="font-size: 1.25rem;">' + res.data.replace(/\n/g, '<br>') + '</p>'
+                            );
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function() {
+                        btn.prop('disabled', false).html('<i class="bi bi-translate me-2"></i> ÇEVİR');
+                        alert("Bir hata oluştu.");
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<section class="lingo-section pt-5">
+    <div class="container">
+        <!-- Top Section: Hero Style (Unboxed) -->
+        <div class="row align-items-center justify-content-center mb-5 mt-4">
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 pe-lg-5" style="transition: all 0.3s ease; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='translateY(-5px) scale(1)'">
+                <h1 class="hero-title fw-bold" style="font-size: 2.5rem; margin-bottom: 1rem;">Evrensel Çevirici</h1>
+                <p class="hero-text mb-0" style="font-size: 1.25rem; color: var(--lingo-text-gray);">
+                    Sadece kelimeleri değil, anlamın ruhunu yakalayın. AI destekli çeviri motoru ile dil bariyerlerini kökten yıkın.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center" style="transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='translateY(-8px) scale(1)'">
+                <img src="~/images/1.png" alt="Evrensel Çeviri" class="img-fluid" style="max-height: 220px; object-fit: cover; border-radius: 50%; box-shadow: 0 15px 35px rgba(0, 163, 224, 0.2);">
+            </div>
+        </div>
+
+        <!-- Translation Input Area -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="translator-input-container position-relative">
+                    <textarea class="form-control translator-textarea" placeholder="Çevirmek istediğiniz kelimeyi veya cümleyi buraya girin..." rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Translate Button -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-auto">
+                <button id="btnTranslate" class="btn rounded-pill shadow translator-btn">
+                    <i class="bi bi-translate me-2"></i> ÇEVİR
+                </button>
+            </div>
+        </div>
+
+        <!-- Translation Result Area -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="translator-result-box text-center p-5">
+                    <i class="bi bi-magic fs-1 mb-3 d-block" style="color: var(--lingo-bar-bg);"></i>
+                    <h4 class="fw-bold mb-3" style="color: var(--lingo-title-blue);">Çeviri Sonucu</h4>
+                    <p class="mb-0 text-muted" style="font-size: 1.15rem;">Yapay zeka çeviriniz burada görünecek...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

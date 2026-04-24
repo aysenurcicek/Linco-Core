@@ -1,0 +1,406 @@
+@{
+    ViewData["Title"] = "Hedef Listem";
+    ViewData["HideLogin"] = true;
+    ViewData["DisableLogoLink"] = true;
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        .level-btn, .alpha-btn {
+            background-color: var(--lingo-bar-bg);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 8px 25px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .alpha-btn {
+            padding: 5px 15px;
+            font-size: 1rem;
+        }
+        .level-btn:hover, .level-btn.active, .level-btn:focus,
+        .alpha-btn:hover, .alpha-btn.active, .alpha-btn:focus {
+            background-color: #e63946; /* Harika bir kirmizi tonu */
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        /* Flashcard Styles */
+        .flashcard-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            padding: 20px;
+        }
+
+        @@keyframes floatingCard {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 450px;
+            height: 280px;
+            position: relative;
+            display: none;
+            margin-bottom: 40px;
+            animation: floatingCard 4s ease-in-out infinite;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), box-shadow 0.4s ease;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .flashcard:hover {
+            box-shadow: 0 25px 50px rgba(0, 163, 224, 0.25);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            padding: 20px;
+            text-align: center;
+            border: 4px solid transparent;
+        }
+
+        .flashcard-front, .flashcard-back {
+            background: linear-gradient(135deg, var(--lingo-title-blue) 0%, var(--lingo-bar-bg) 100%);
+            color: white;
+            border-color: #ffffff;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+
+        .word-text {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .word-pronounce {
+            color: #d1f4ff;
+            font-size: 1.4rem;
+            font-style: italic;
+        }
+
+        .action-btns {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .action-btns .btn {
+            border-radius: 18px;
+            padding: 16px 30px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            border: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+
+        .btn-flip {
+            background-color: white;
+            color: var(--lingo-title-blue);
+            border: 2px solid var(--lingo-bar-bg);
+            width: 65%;
+        }
+
+        .btn-flip:hover {
+            background-color: var(--lingo-bar-bg);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 163, 224, 0.3);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--lingo-bar-bg) 0%, #0074A6 100%);
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #0074A6 0%, var(--lingo-title-blue) 100%);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 74, 124, 0.35);
+        }
+
+        .message-box {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        .initial-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            width: 100%;
+        }
+    </style>
+
+    <script>
+        let selectedLetter = '';
+        let selectedLevel = '';
+        let currentWordId = 0;
+
+        $(document).ready(function() {
+            $('.alpha-btn').click(function() {
+                $('.alpha-btn').removeClass('active');
+                $(this).addClass('active');
+                selectedLetter = $(this).text();
+            });
+
+            $('.level-btn').click(function() {
+                $('.level-btn').removeClass('active');
+                $(this).addClass('active');
+                selectedLevel = $(this).text();
+            });
+
+            $('#btnFetchWords').click(function() {
+                if(!selectedLetter || !selectedLevel) {
+                    alert("Lütfen önce bir harf ve seviye seçin!");
+                    return;
+                }
+                fetchNextWord();
+            });
+
+            $('#btnFlip').click(function() {
+                $('.flashcard').toggleClass('flipped');
+            });
+
+            $('.flashcard').click(function() {
+                $(this).toggleClass('flipped');
+            });
+
+            $('#btnAdd').click(function() {
+                if(currentWordId === 0) return;
+
+                // Havai fişek patlama animasyonu
+                var duration = 2000;
+                var end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#e63946', '#f4a261', '#2a9d8f']
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#e63946', '#f4a261', '#2a9d8f']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+
+                let btn = $(this);
+                btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> EKLENİYOR...');
+
+                // Kelimeyi ekle
+                $.ajax({
+                    url: '/Home/AddWordToVocabulary',
+                    type: 'POST',
+                    data: {
+                        kelimeId: currentWordId,
+                        harf: selectedLetter,
+                        seviye: selectedLevel
+                    },
+                    success: function(res) {
+                        if(res.success) {
+                            setTimeout(function() {
+                                $('.flashcard').removeClass('flipped');
+                                setTimeout(function() {
+                                    fetchNextWord();
+                                    btn.prop('disabled', false).html('<i class="bi bi-plus-circle me-2"></i> KELİMELERİME EKLE');
+                                }, 400);
+                            }, 1000);
+                        } else {
+                            if(res.message === "Oturum bulunamadı.") {
+                                window.location.href = '/Account/Login';
+                            }
+                            btn.prop('disabled', false).html('<i class="bi bi-plus-circle me-2"></i> KELİMELERİME EKLE');
+                        }
+                    },
+                    error: function() {
+                        btn.prop('disabled', false).html('<i class="bi bi-plus-circle me-2"></i> KELİMELERİME EKLE');
+                    }
+                });
+            });
+        });
+
+        function fetchNextWord() {
+            $('.initial-state').hide();
+            $('#btnFetchWords').hide(); // İlk getirme butonunu gizle
+
+            $.ajax({
+                url: '/Home/GetNextWord',
+                type: 'GET',
+                data: { harf: selectedLetter, seviye: selectedLevel },
+                success: function(res) {
+                    if(res.success) {
+                        if(res.finished) {
+                            $('.flashcard-container, .action-btns').hide();
+                            $('.message-box').html(
+                                '<div class="mb-4"><i class="bi bi-stars" style="font-size: 5rem; color: #f4a261;"></i></div>' +
+                                '<h2 class="fw-bold" style="color: var(--lingo-title-blue);">' + res.message + '</h2>' +
+                                '<p class="text-muted mt-3">Farklı bir seviye veya harf seçerek öğrenmeye devam edebilirsiniz.</p>'
+                            ).fadeIn();
+                        } else {
+                            currentWordId = res.data.id;
+                            $('#frontWord').text(res.data.ingilizce);
+                            $('#frontPronounce').text(res.data.okunus || '');
+                            $('#backWord').text(res.data.turkce);
+                            
+                            $('.message-box').hide();
+                            $('.flashcard-container, .action-btns').fadeIn();
+                        }
+                    } else {
+                        if(res.message === "Oturum bulunamadı.") {
+                            window.location.href = '/Account/Login';
+                        }
+                        alert("Hata: " + res.message);
+                    }
+                }
+            });
+        }
+    </script>
+}
+
+<section class="lingo-section pt-5">
+    <div class="container">
+        <!-- Top Section -->
+        <div class="row align-items-center justify-content-center mb-5 mt-4">
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 pe-lg-5" style="transition: all 0.3s ease; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='translateY(-5px) scale(1)'">
+                <h1 class="hero-title fw-bold" style="font-size: 2.5rem; margin-bottom: 1rem;">Hedef Listem</h1>
+                <p class="hero-text mb-0" style="font-size: 1.25rem; color: var(--lingo-text-gray);">
+                    Kelimeleri hafızaya kazımanın en eğlenceli yolu! Seç, Çevir, Öğren!
+                </p>
+            </div>
+            <div class="col-lg-4 text-center" style="transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='translateY(-8px) scale(1)'">
+                <img src="~/images/4.png" alt="Hedef Listem" class="img-fluid" style="max-height: 220px; object-fit: cover; border-radius: 50%; box-shadow: 0 15px 35px rgba(0, 163, 224, 0.2);">
+            </div>
+        </div>
+
+        <!-- Alphabet Buttons -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10 text-center d-flex justify-content-center gap-2 flex-wrap">
+                @foreach(var letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+                {
+                    <button class="btn alpha-btn">@letter</button>
+                }
+            </div>
+        </div>
+
+        <!-- Level Buttons -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 text-center d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn level-btn">A1</button>
+                <button class="btn level-btn">A2</button>
+                <button class="btn level-btn">B1</button>
+                <button class="btn level-btn">B2</button>
+                <button class="btn level-btn">C1</button>
+            </div>
+        </div>
+
+        <!-- Fetch Button Initial -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-auto">
+                <button id="btnFetchWords" class="btn rounded-pill shadow translator-btn">
+                    <i class="bi bi-box-arrow-in-down me-2"></i> ÖĞRENMEYE BAŞLA
+                </button>
+            </div>
+        </div>
+
+        <!-- Flashcard Area -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <div class="flashcard-wrapper">
+                    
+                    <div class="initial-state">
+                        <i class="bi bi-collection-play fs-1 d-block mb-3" style="color: var(--lingo-bar-bg); opacity: 0.5;"></i>
+                        <h4 class="text-muted">Kelime Kartları sizi bekliyor!</h4>
+                        <p class="text-muted">Yukarıdan harf ve seviye seçip "Öğrenmeye Başla" butonuna tıklayınız.</p>
+                    </div>
+
+                    <div class="message-box"></div>
+
+                    <div class="flashcard-container">
+                        <div class="flashcard">
+                            <div class="flashcard-face flashcard-front">
+                                <span class="badge bg-danger mb-3 px-3 py-2 rounded-pill">İNGİLİZCE</span>
+                                <div class="word-text" id="frontWord">Word</div>
+                                <div class="word-pronounce" id="frontPronounce">Pronunciation</div>
+                            </div>
+                            <div class="flashcard-face flashcard-back">
+                                <span class="badge bg-danger mb-3 px-3 py-2 rounded-pill">TÜRKÇE</span>
+                                <div class="word-text" id="backWord">Kelime</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-btns">
+                        <button id="btnFlip" class="btn btn-flip shadow">
+                            <i class="bi bi-arrow-repeat me-2"></i> ÇEVİR
+                        </button>
+                        <button id="btnAdd" class="btn btn-add shadow">
+                            <i class="bi bi-plus-circle me-2"></i> KELİMELERİME EKLE
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

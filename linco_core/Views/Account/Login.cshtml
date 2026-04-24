@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "Giriş Yap";
+    ViewData["HideLogin"] = true;
+    ViewData["DisableMenu"] = true;
+}
+
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+    .auth-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 163, 224, 0.15);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        transition: transform 0.3s ease;
+    }
+    .auth-card:hover {
+        transform: translateY(-5px);
+    }
+    .auth-title {
+        color: var(--lingo-title-blue);
+        font-weight: 800;
+        margin-bottom: 30px;
+        font-size: 2rem;
+    }
+    .form-control.lingo-input {
+        border-radius: 50px;
+        padding: 12px 25px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    .form-control.lingo-input:focus {
+        border-color: var(--lingo-bar-bg);
+        box-shadow: 0 0 0 0.25rem rgba(0, 163, 224, 0.25);
+    }
+    .lingo-btn-submit {
+        background-color: var(--lingo-bar-bg);
+        color: white;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        border: none;
+        width: 100%;
+    }
+    .lingo-btn-submit:hover {
+        background-color: #0082b3;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 163, 224, 0.3);
+    }
+    .auth-link {
+        color: var(--lingo-bar-bg);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+    }
+    .auth-link:hover {
+        color: #e63946;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card text-center">
+        <div class="mb-4">
+            <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--lingo-bar-bg);"></i>
+        </div>
+        <h2 class="auth-title">Hoş Geldiniz</h2>
+        
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger rounded-pill px-4 py-2 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div class="mb-3 text-start">
+                <label for="KullaniciAdi" class="form-label fw-bold" style="color: var(--lingo-text-gray); padding-left: 15px;">Kullanıcı Adı</label>
+                <div class="input-group">
+                    <span class="input-group-text border-0 bg-transparent position-absolute z-3" style="padding-left: 20px; padding-top: 13px;">
+                        <i class="bi bi-person text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control lingo-input" id="KullaniciAdi" name="KullaniciAdi" required style="padding-left: 45px;">
+                </div>
+            </div>
+            
+            <div class="mb-4 text-start">
+                <label for="Sifre" class="form-label fw-bold" style="color: var(--lingo-text-gray); padding-left: 15px;">Şifre</label>
+                <div class="input-group">
+                    <span class="input-group-text border-0 bg-transparent position-absolute z-3" style="padding-left: 20px; padding-top: 13px;">
+                        <i class="bi bi-lock text-muted"></i>
+                    </span>
+                    <input type="password" class="form-control lingo-input" id="Sifre" name="Sifre" required style="padding-left: 45px;">
+                </div>
+            </div>
+
+            <button type="submit" class="btn lingo-btn-submit mb-4">
+                GİRİŞ YAP <i class="bi bi-box-arrow-in-right ms-2"></i>
+            </button>
+        </form>
+
+        <div class="mt-2">
+            <span class="text-muted" style="font-size: 0.9rem;">Henüz hesabınız yok mu?</span><br>
+            <a asp-controller="Account" asp-action="Register" class="auth-link">Buradan Üye Olun</a>
+        </div>
+    </div>
+</div>

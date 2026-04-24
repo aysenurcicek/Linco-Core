@@ -1,0 +1,204 @@
+@{
+    ViewData["Title"] = "Kayıp Sözlük";
+    ViewData["HideLogin"] = true;
+    ViewData["DisableLogoLink"] = true;
+}
+
+@section Scripts {
+    <style>
+        .level-btn, .alpha-btn {
+            background-color: var(--lingo-bar-bg);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 8px 25px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .alpha-btn {
+            padding: 5px 15px;
+            font-size: 1rem;
+        }
+        .level-btn:hover, .level-btn.active, .level-btn:focus,
+        .alpha-btn:hover, .alpha-btn.active, .alpha-btn:focus {
+            background-color: #e63946; /* Harika bir kirmizi tonu */
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(230, 57, 70, 0.3);
+        }
+        
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 20px;
+            min-height: 250px;
+        }
+        .lingo-table thead th {
+            color: var(--lingo-title-blue);
+            border-bottom: 2px solid var(--lingo-bar-bg);
+            padding-bottom: 15px;
+        }
+        .lingo-table tbody td {
+            color: var(--lingo-text-gray);
+            padding: 15px 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        
+        /* Ozel Kaydirma Cubugu (Scrollbar) Tasarimi */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 10px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--lingo-bar-bg); 
+            border-radius: 10px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #0082b3; 
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            let selectedLetter = '';
+            let selectedLevel = '';
+
+            // Harf seçimi
+            $('.alpha-btn').click(function () {
+                $('.alpha-btn').removeClass('active');
+                $(this).addClass('active');
+                selectedLetter = $(this).text().trim();
+            });
+
+            // Seviye seçimi
+            $('.level-btn').click(function () {
+                $('.level-btn').removeClass('active');
+                $(this).addClass('active');
+                selectedLevel = $(this).text().trim();
+            });
+
+            // Kelimeleri getir
+            $('.translator-btn').click(function () {
+                if (!selectedLetter) {
+                    alert('Lütfen bir harf seçin.');
+                    return;
+                }
+                if (!selectedLevel) {
+                    alert('Lütfen bir seviye seçin.');
+                    return;
+                }
+
+                const tbody = $('.lingo-table tbody');
+                tbody.html('<tr><td colspan="2" class="text-center py-5"><div class="spinner-border text-danger" role="status"></div><div class="mt-2 text-muted">Kelimeler Yükleniyor...</div></td></tr>');
+
+                $.ajax({
+                    url: '@Url.Action("GetGenelSozlukWords", "Home")',
+                    type: 'GET',
+                    data: { harf: selectedLetter, seviye: selectedLevel },
+                    success: function (response) {
+                        if (response.success) {
+                            tbody.empty();
+                            if (response.data && response.data.length > 0) {
+                                response.data.forEach(function (item) {
+                                    tbody.append(`
+                                        <tr>
+                                            <td class="fw-bold fs-5 text-dark">` + item.ingilizce + `</td>
+                                            <td class="fs-5">` + item.turkce + `</td>
+                                        </tr>
+                                    `);
+                                });
+                            } else {
+                                tbody.html('<tr><td colspan="2" class="text-muted py-5" style="border: none;"><i class="bi bi-info-circle fs-1 d-block mb-3" style="color: var(--lingo-bar-bg); opacity: 0.5;"></i>Seçtiğiniz kriterlere uygun kelime bulunamadı.</td></tr>');
+                            }
+                        } else {
+                            alert(response.message);
+                            tbody.html('<tr><td colspan="2" class="text-muted py-5" style="border: none;">Veriler yüklenirken bir hata oluştu.</td></tr>');
+                        }
+                    },
+                    error: function () {
+                        alert('Sunucu ile iletişim kurulamadı.');
+                        tbody.html('<tr><td colspan="2" class="text-muted py-5" style="border: none;">Sunucu bağlantı hatası.</td></tr>');
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<section class="lingo-section pt-5">
+    <div class="container">
+        <!-- Top Section -->
+        <div class="row align-items-center justify-content-center mb-5 mt-4">
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 pe-lg-5" style="transition: all 0.3s ease; cursor: default;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='translateY(-5px) scale(1)'">
+                <h1 class="hero-title fw-bold" style="font-size: 2.5rem; margin-bottom: 1rem;">Kayıp Sözlük</h1>
+                <p class="hero-text mb-0" style="font-size: 1.25rem; color: var(--lingo-text-gray);">
+                    Unuttuğunuz veya hatırlamakta zorlandığınız kelimeleri burada biriktirin, onları kalıcı hafızanıza kazıyın.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center" style="transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform='translateY(0)'" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='translateY(-8px) scale(1)'">
+                <img src="~/images/5.png" alt="Kayıp Sözlük" class="img-fluid" style="max-height: 220px; object-fit: cover; border-radius: 50%; box-shadow: 0 15px 35px rgba(0, 163, 224, 0.2);">
+            </div>
+        </div>
+
+        <!-- Alphabet Buttons -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10 text-center d-flex justify-content-center gap-2 flex-wrap">
+                @foreach(var letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+                {
+                    <button class="btn alpha-btn">@letter</button>
+                }
+            </div>
+        </div>
+
+        <!-- Level Buttons -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 text-center d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn level-btn">A1</button>
+                <button class="btn level-btn">A2</button>
+                <button class="btn level-btn">B1</button>
+                <button class="btn level-btn">B2</button>
+                <button class="btn level-btn">C1</button>
+            </div>
+        </div>
+
+        <!-- Fetch Button -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-auto">
+                <button class="btn rounded-pill shadow translator-btn">
+                    <i class="bi bi-box-arrow-in-down me-2"></i> KELİMELERİMİ GETİR
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Table -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="table-container">
+                    <table class="table table-borderless lingo-table w-100 text-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="fs-5">İngilizce</th>
+                                <th class="fs-5">Türkçe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Boşluk alanı - Veri eklendikçe otomatik çoğalacak ve kaydırma çubuğu çıkacak -->
+                            <tr>
+                                <td colspan="2" class="text-muted py-5" style="border: none;">
+                                    <i class="bi bi-search fs-1 d-block mb-3" style="color: var(--lingo-bar-bg); opacity: 0.5;"></i>
+                                    Seçiminize ait kelimeler burada görüntülenecek...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

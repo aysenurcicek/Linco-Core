@@ -1,0 +1,367 @@
+@{
+    ViewData["Title"] = "Bilgi Sınırı Sonuçları";
+    ViewData["HideLogin"] = true;
+    ViewData["DisableLogoLink"] = true;
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        .carousel-container {
+            position: relative;
+            margin-bottom: 3rem;
+            padding: 0 40px;
+        }
+        
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--lingo-title-blue);
+            color: white;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+        .carousel-btn:hover {
+            background-color: var(--lingo-bar-bg);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .carousel-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: translateY(-50%);
+        }
+        .btn-prev { left: 0; }
+        .btn-next { right: 0; }
+
+        .square-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 2rem;
+            aspect-ratio: 1 / 1; 
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+            border: 2px solid transparent;
+        }
+        
+        /* Modern scrollbar for square card */
+        .square-card::-webkit-scrollbar {
+            width: 8px;
+        }
+        .square-card::-webkit-scrollbar-thumb {
+            background-color: #dee2e6;
+            border-radius: 4px;
+        }
+
+        .correct-card { border-top: 5px solid #28a745; }
+        .incorrect-card { border-top: 5px solid #dc3545; }
+
+        .question-text-result {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .res-opt {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .res-circ {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #adb5bd;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .res-opt.opt-correct {
+            border: 2px solid #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        .res-opt.opt-correct .res-circ {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .res-opt.opt-wrong {
+            border: 2px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        .res-opt.opt-wrong .res-circ {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .stat-box {
+            background-color: var(--lingo-bar-bg);
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0, 163, 224, 0.2);
+            flex: 1;
+            margin: 0 10px;
+        }
+        .stat-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-val {
+            font-size: 2rem;
+            font-weight: bold;
+            background-color: white;
+            border-radius: 8px;
+            padding: 5px 15px;
+            display: inline-block;
+        }
+        .val-correct { color: #28a745; }
+        .val-wrong { color: #dc3545; }
+        .val-empty { color: #6c757d; }
+
+        .score-section {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .score-text {
+            font-size: 4rem;
+            font-weight: 800;
+        }
+        .score-red { color: #dc3545; }
+        .score-yellow { color: #ffc107; }
+        .score-green { color: #28a745; }
+        
+        .carousel-slide {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .carousel-slide.active {
+            display: block;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            // Retrieve Data
+            let storedData = sessionStorage.getItem("testResultsData");
+            if (!storedData) {
+                alert("Sonuç verisi bulunamadı! Test sayfasına yönlendiriliyorsunuz.");
+                window.location.href = "/Home/BilgiSiniri";
+                return;
+            }
+            let data = JSON.parse(storedData);
+            let details = data.details;
+            let stats = data.stats;
+
+            // Fire Confetti!
+            let duration = 3 * 1000;
+            let animationEnd = Date.now() + duration;
+            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            let interval = setInterval(function() {
+                let timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                let particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            // Populate Stats
+            $('#txtDogru').text(stats.dogru);
+            $('#txtYanlis').text(stats.yanlis);
+            $('#txtBos').text(stats.bos);
+
+            let $score = $('#txtScore');
+            $score.text(stats.puan);
+            if (stats.puan < 60) $score.addClass('score-red');
+            else if (stats.puan < 80) $score.addClass('score-yellow');
+            else $score.addClass('score-green');
+
+            // Render Carousels
+            let correctQuestions = details.filter(q => q.isCorrect);
+            let wrongQuestions = details.filter(q => !q.isCorrect && !q.isBlank);
+            
+            // Render Correct Ones
+            if(correctQuestions.length === 0) {
+                $('#correctCarousel').html('<div class="text-center p-4 text-muted"><i class="bi bi-emoji-frown fs-1"></i><br>Hiç doğru cevabınız yok.</div>');
+                $('#btnPrevC, #btnNextC').hide();
+            } else {
+                let cHtml = '';
+                correctQuestions.forEach((item, idx) => {
+                    cHtml += `
+                        <div class="carousel-slide ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+                            <div class="square-card correct-card">
+                                <div class="question-text-result">${item.question.question}</div>
+                                <div class="options-wrap">
+                    `;
+                    item.question.options.forEach((opt, optIdx) => {
+                        let optClass = (optIdx === item.question.correctAnswerIndex) ? 'opt-correct' : '';
+                        cHtml += `
+                            <div class="res-opt ${optClass}">
+                                <div class="res-circ"></div>
+                                <div>${opt}</div>
+                            </div>
+                        `;
+                    });
+                    cHtml += `</div></div></div>`;
+                });
+                $('#correctCarousel').html(cHtml);
+                initCarousel('correctCarousel', 'btnPrevC', 'btnNextC');
+            }
+
+            // Render Wrong Ones
+            if(wrongQuestions.length === 0) {
+                $('#wrongCarousel').html('<div class="text-center p-4 text-muted"><i class="bi bi-emoji-smile fs-1"></i><br>Hiç yanlış cevabınız yok!</div>');
+                $('#btnPrevW, #btnNextW').hide();
+            } else {
+                let wHtml = '';
+                wrongQuestions.forEach((item, idx) => {
+                    wHtml += `
+                        <div class="carousel-slide ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+                            <div class="square-card incorrect-card">
+                                <div class="question-text-result">${item.question.question}</div>
+                                <div class="options-wrap">
+                    `;
+                    item.question.options.forEach((opt, optIdx) => {
+                        let optClass = '';
+                        if (optIdx === item.question.correctAnswerIndex) optClass = 'opt-correct'; // Actual correct
+                        else if (optIdx === item.userAnswerIndex) optClass = 'opt-wrong'; // User wrong
+                        
+                        wHtml += `
+                            <div class="res-opt ${optClass}">
+                                <div class="res-circ"></div>
+                                <div>${opt}</div>
+                            </div>
+                        `;
+                    });
+                    wHtml += `</div></div></div>`;
+                });
+                $('#wrongCarousel').html(wHtml);
+                initCarousel('wrongCarousel', 'btnPrevW', 'btnNextW');
+            }
+
+            function initCarousel(containerId, prevBtnId, nextBtnId) {
+                let $container = $('#' + containerId);
+                let slides = $container.find('.carousel-slide');
+                if(slides.length <= 1) {
+                    $('#' + prevBtnId).hide();
+                    $('#' + nextBtnId).hide();
+                    return;
+                }
+                
+                let currentIdx = 0;
+                let maxIdx = slides.length - 1;
+                
+                function updateVis() {
+                    slides.removeClass('active');
+                    $(slides[currentIdx]).addClass('active');
+                    $('#' + prevBtnId).prop('disabled', currentIdx === 0);
+                    $('#' + nextBtnId).prop('disabled', currentIdx === maxIdx);
+                }
+                updateVis();
+
+                $('#' + prevBtnId).click(function() {
+                    if (currentIdx > 0) { currentIdx--; updateVis(); }
+                });
+                $('#' + nextBtnId).click(function() {
+                    if (currentIdx < maxIdx) { currentIdx++; updateVis(); }
+                });
+            }
+        });
+    </script>
+}
+
+<section class="lingo-section pt-5">
+    <div class="container pb-5">
+        
+        <div class="text-center mb-5 mt-4">
+            <h1 class="hero-title fw-bold" style="font-size: 2.5rem; color: var(--lingo-title-blue);">Test Analizi</h1>
+            <p class="text-muted" style="font-size: 1.15rem;">Sınırlarını ne kadar zorladığını görelim!</p>
+        </div>
+
+        <div class="row mb-5">
+            <!-- Correct Questions Carousel -->
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h4 class="text-center fw-bold mb-4" style="color: #28a745;">Doğru Yapılan Sorular</h4>
+                <div class="carousel-container">
+                    <button id="btnPrevC" class="carousel-btn btn-prev"><i class="bi bi-chevron-left"></i></button>
+                    <div id="correctCarousel">
+                        <!-- Content Injected -->
+                    </div>
+                    <button id="btnNextC" class="carousel-btn btn-next"><i class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Incorrect Questions Carousel -->
+            <div class="col-md-6">
+                <h4 class="text-center fw-bold mb-4" style="color: #dc3545;">Yanlış Yapılan Sorular</h4>
+                <div class="carousel-container">
+                    <button id="btnPrevW" class="carousel-btn btn-prev"><i class="bi bi-chevron-left"></i></button>
+                    <div id="wrongCarousel">
+                        <!-- Content Injected -->
+                    </div>
+                    <button id="btnNextW" class="carousel-btn btn-next"><i class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Boxes -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                    <div class="stat-box">
+                        <div class="stat-title">Doğru Sayısı</div>
+                        <div class="stat-val val-correct" id="txtDogru">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-title">Yanlış Sayısı</div>
+                        <div class="stat-val val-wrong" id="txtYanlis">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-title">Boş Sayısı</div>
+                        <div class="stat-val val-empty" id="txtBos">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Score Box -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="score-section">
+                    <h3 class="text-muted fw-bold mb-3" style="letter-spacing: 2px;">ALDIĞIN PUAN</h3>
+                    <div class="score-text" id="txtScore">--</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Lingo Core</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/linco_core.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg lingo-navbar sticky-top">
+            <div class="container align-items-center">
+                <!-- En Sol: Logo -->
+                @if (ViewData["DisableLogoLink"] as bool? == true)
+                {
+                    <div class="navbar-brand d-flex align-items-center" style="cursor: default;">
+                        <img src="~/images/logo.png" alt="Lingo Core Logo" class="lingo-logo">
+                    </div>
+                }
+                else
+                {
+                    <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="~/images/logo.png" alt="Lingo Core Logo" class="lingo-logo">
+                    </a>
+                }
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="bi bi-list text-white fs-1"></i>
+                </button>
+
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav align-items-center gap-2 gap-lg-4">
+                        <!-- Menü Dropdown -->
+                        @if (ViewData["DisableMenu"] as bool? != true)
+                        {
+                            <li class="nav-item dropdown">
+                            <a class="nav-link lingo-nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="fw-semibold fs-5">Menü</span>
+                            </a>
+                            <ul class="dropdown-menu lingo-dropdown mt-2 shadow-sm border-0" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="/#evrensel-ceviri">Evrensel Çeviri</a></li>
+                                <li><a class="dropdown-item" href="/#ai-cumle-atolyesi">AI Cümle Atölyesi</a></li>
+                                <li><a class="dropdown-item" href="/#kelime-haznem">Kelime Haznem</a></li>
+                                <li><a class="dropdown-item" href="/#hedef-listem">Hedef Listem</a></li>
+                                <li><a class="dropdown-item" href="/#kayip-sozluk">Kayıp Sözlük</a></li>
+                                <li><a class="dropdown-item" href="/#bilgi-siniri">Bilgi Sınırı</a></li>
+                                <li><a class="dropdown-item" href="/#lingo-arena">Lingo Arena</a></li>
+                            </ul>
+                        </li>
+                        }
+
+                        <!-- Anasayfa -->
+                        <li class="nav-item">
+                            <a class="nav-link lingo-nav-link d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
+                                <span class="fw-semibold fs-5">Anasayfa</span>
+                            </a>
+                        </li>
+
+                        <!-- Giriş / Kullanıcı -->
+                        @if (ViewData["HideLogin"] as bool? != true)
+                        {
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item dropdown ms-lg-3 mt-3 mt-lg-0">
+                                    <a class="btn lingo-btn-login d-flex align-items-center gap-2 dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--lingo-title-blue); border-color: var(--lingo-title-blue);">
+                                        <span class="fw-semibold fs-5">@User.Identity.Name</span>
+                                        <i class="bi bi-person-circle fs-4"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end lingo-dropdown mt-2 shadow-sm border-0" aria-labelledby="userDropdown">
+                                        <li><a class="dropdown-item text-danger fw-bold" asp-controller="Account" asp-action="Logout"><i class="bi bi-box-arrow-right me-2"></i> Çıkış Yap</a></li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                                    <a asp-controller="Account" asp-action="Login" class="btn lingo-btn-login d-flex align-items-center gap-2">
+                                        <span class="fw-semibold fs-5">Giriş Yap</span>
+                                        <i class="bi bi-person-fill-lock fs-4"></i>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container-fluid p-0">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="lingo-footer text-center">
+        <div class="container">
+            <div class="row pt-2 pb-4">
+                <div class="col-12 d-flex justify-content-center gap-4 mb-4">
+                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+                </div>
+                <div class="col-12">
+                    <img src="~/images/logo.png" alt="Lingo Core Logo" class="lingo-logo mb-3" style="max-height: 40px; opacity: 0.9;">
+                    <p class="mb-0 lingo-footer-text">&copy; 2026 - Lingo Core AI Interactive English Excellence</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
